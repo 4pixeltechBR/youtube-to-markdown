@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "youtube-to-markdown"
+version = "1.0.0"
+description = "Universal multimodal reverse-engineering pipeline: Turn YouTube videos, playlists, and media into structured Markdown, Whisper transcripts, frame timelines, and Obsidian/Mermaid mind maps."
+readme = "README.md"
+authors = [
+    { name = "4Pixel Tech", email = "4pixeltech@gmail.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "yt-dlp>=2024.08.01",
+    "groq>=0.9.0",
+    "imageio-ffmpeg>=0.5.1"
+]
+keywords = [
+    "youtube",
+    "markdown",
+    "transcription",
+    "whisper",
+    "groq",
+    "obsidian",
+    "mermaid",
+    "mindmap",
+    "ai-agent",
+    "reverse-engineering"
+]
+
+[project.scripts]
+yt2md = "yt2md.cli:main"
+youtube-to-markdown = "yt2md.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/4pixeltechBR/youtube-to-markdown"
+Repository = "https://github.com/4pixeltechBR/youtube-to-markdown"
+Issues = "https://github.com/4pixeltechBR/youtube-to-markdown/issues"

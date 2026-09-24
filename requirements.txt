@@ -1,0 +1,3 @@
+yt-dlp>=2024.08.01
+groq>=0.9.0
+imageio-ffmpeg>=0.5.1
