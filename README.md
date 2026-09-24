@@ -1,11 +1,19 @@
 # youtube-to-markdown (yt2md)
 
+<p align="right">
+  <strong>Language:</strong>
+  <a href="README.md">English</a> |
+  <a href="README_PT.md">Português (Brasil)</a>
+</p>
+
+> 🇧🇷 **Prefere ler em Português?** [Clique aqui para acessar a documentação completa em Português (README_PT.md)](README_PT.md).
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10+-brightgreen.svg)](https://python.org)
 [![Whisper: Groq Turbo](https://img.shields.io/badge/Whisper-Groq%20v3%20Turbo-orange.svg)](https://console.groq.com)
 [![Harness: Agent--Native](https://img.shields.io/badge/AI%20Harness-Ready-purple.svg)](SKILL.md)
 [![Obsidian Canvas](https://img.shields.io/badge/Obsidian-Canvas%20Supported-purple)](https://obsidian.md)
-[![Português](https://img.shields.io/badge/Documentação-Português-green)](README_PT.md)
+[![Português](https://img.shields.io/badge/Documentação-Português--BR-green)](README_PT.md)
 
 **Universal multimodal reverse-engineering pipeline for AI agents & developers.**  
 Turn any YouTube video, playlist, TikTok, Instagram Reel, X/Twitter video, or podcast into structured Markdown, zero-cost native CC or Whisper transcripts, 16-frame visual timelines, public comments, and interactive Obsidian Canvas / Mermaid mind maps.
