@@ -43,6 +43,9 @@ python path/to/youtube-to-markdown/yt2md.py "<URL>" --json
 | Flag | Purpose |
 | :--- | :--- |
 | `--json` | **Required for agents:** Outputs structured JSON to stdout containing output paths and metadata. |
+| `-s <N>`, `--search <N>` | Searches YouTube by keywords and returns/processes top N results (e.g. `-s 5`). |
+| `--all` | Processes all search results or playlist entries in batch. |
+| `--pick <N>` | Directly selects search result index N (1-based) without interactive prompting. |
 | `--single-video` | Forces processing only the single video (avoids interactive prompts when URL contains `list=`). |
 | `--playlist` | Forces batch processing of the entire playlist. |
 | `-o <path>` | Specifies exact destination directory (e.g., `-o ./docs/research/`). |
@@ -50,6 +53,12 @@ python path/to/youtube-to-markdown/yt2md.py "<URL>" --json
 | `--no-comments` | Skips comment extraction if audience feedback is not needed. |
 | `--force-whisper` | Bypasses native CC subtitles and forces Groq Whisper neural transcription. |
 | `--lang "en,pt"` | Preferred languages for subtitles and transcription. |
+
+### Search Invocation Example for Agents
+```bash
+# Agent discovers top video on a topic and ingests automatically:
+python -m yt2md "formas de ganhar dinheiro com IA" --json --pick 1
+```
 
 ---
 

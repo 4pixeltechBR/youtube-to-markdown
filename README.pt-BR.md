@@ -95,7 +95,35 @@ GROQ_API_KEY=gsk_sua_chave_groq_aqui
 
 ## 🚀 Como Usar
 
-### 1. Modo Terminal Interativo
+### 1. Pesquisa Direta por Palavras-chave (Sem precisar de URL!)
+Você nem precisa abrir o YouTube ou copiar links. Pesquise diretamente pelo terminal ou chat de IA:
+
+```bash
+# Busca os top 5 vídeos sobre um tema e pergunta qual processar:
+yt2md "formas de ganhar dinheiro com IA" -s 5
+
+# Busca e processa TODOS os top 3 vídeos em lote criando um dossiê comparativo:
+yt2md "arquitetura de agentes autonomos" -s 3 --all
+```
+
+Menu de Seleção Interativo:
+```
+======================================================================
+  🔍 Resultados da Busca no YouTube: "formas de ganhar dinheiro com IA"
+======================================================================
+  [1] 4 FORMAS de GANHAR dinheiro com IA
+      Canal: Método VTSD  |  Duração: 18:24  |  Visualizações: 124.500
+  [2] 6 Formas de Ganhar Dinheiro com IA Sem Aparecer
+      Canal: Nerds de Negócios  |  Duração: 22:15  |  Visualizações: 340.200
+----------------------------------------------------------------------
+  Opções:
+  [1-5] Processar vídeo individual (recomendado)
+  [A]   Processar TODOS em lote (cria hub de inteligência comparativa)
+  [Q]   Cancelar
+======================================================================
+```
+
+### 2. Modo URL Interativo
 Basta passar o link. Se o link contiver tanto o vídeo quanto a playlist (`v=` e `list=`), a ferramenta pergunta o que você deseja fazer:
 
 ```bash

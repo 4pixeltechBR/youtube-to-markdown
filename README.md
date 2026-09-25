@@ -103,8 +103,36 @@ GROQ_API_KEY=gsk_your_groq_api_key_here
 
 ## 🚀 Usage
 
-### 1. Interactive Terminal Mode
-Just pass the URL. If the URL contains both a video and a playlist (`list=` and `v=`), the engine intelligently prompts you:
+### 1. Keyword Search & Discovery (No URL Needed!)
+You don't even need to open YouTube or copy links. Search directly from your terminal or AI agent chat:
+
+```bash
+# Search top 5 videos on a topic and interactively choose which to process:
+yt2md "formas de ganhar dinheiro com IA" -s 5
+
+# Search and batch-process all top 3 results into an intelligence hub:
+yt2md "autonomous AI agent architecture" -s 3 --all
+```
+
+Interactive Search Menu:
+```
+======================================================================
+  🔍 YouTube Search Results: "formas de ganhar dinheiro com IA"
+======================================================================
+  [1] 4 FORMAS de GANHAR dinheiro com IA
+      Channel: Método VTSD  |  Duration: 18:24  |  Views: 124,500
+  [2] 6 Formas de Ganhar Dinheiro com IA Sem Aparecer
+      Channel: Nerds de Negócios  |  Duration: 22:15  |  Views: 340,200
+----------------------------------------------------------------------
+  Options:
+  [1-5] Process specific video (recommended)
+  [A]   Process ALL in batch (creates comparative search hub)
+  [Q]   Quit / Cancel
+======================================================================
+```
+
+### 2. Interactive URL Mode
+Just pass any media URL. If the URL contains both a video and a playlist (`list=` and `v=`), the engine intelligently prompts you:
 
 ```bash
 python yt2md.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"

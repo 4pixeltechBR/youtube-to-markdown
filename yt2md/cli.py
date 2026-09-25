@@ -12,11 +12,12 @@ from .extractor import (
     process_playlist,
     process_single_video,
 )
+from .search import is_url, process_search_query
 from .utils import ensure_utf8_io
 
 ensure_utf8_io()
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -27,7 +28,29 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "url",
         nargs="?",
-        help="Target media URL (YouTube video, playlist, TikTok, Instagram Reel, X/Twitter, podcast)."
+        help="Target media URL or keyword search query (e.g., 'formas de ganhar dinheiro com IA')."
+    )
+    parser.add_argument(
+        "-s", "--search",
+        dest="search_limit",
+        nargs="?",
+        const=5,
+        type=int,
+        default=None,
+        help="Search YouTube by keywords and select videos to process (default: 5 results)."
+    )
+    parser.add_argument(
+        "--all",
+        dest="process_all",
+        action="store_true",
+        help="When searching or processing playlists, process all results in batch."
+    )
+    parser.add_argument(
+        "--pick",
+        dest="search_pick",
+        type=int,
+        default=None,
+        help="Directly select search result index (1-based) without interactive prompt."
     )
     parser.add_argument(
         "-o", "--output",
@@ -108,7 +131,7 @@ def main():
         if sys.stdin.isatty():
             print("\n  🎬 youtube-to-markdown v" + __version__)
             try:
-                args.url = input("  Enter media or playlist URL: ").strip()
+                args.url = input("  Enter media URL or search keywords: ").strip()
             except (KeyboardInterrupt, EOFError):
                 sys.exit(0)
         if not args.url:
@@ -118,15 +141,16 @@ def main():
     quiet_mode = args.quiet or args.json_output
 
     try:
-        intent = detect_playlist_intent(
-            args.url,
-            force_playlist=args.force_playlist,
-            force_single=args.force_single
-        )
+        # Check if input is a search query vs direct URL
+        is_search = args.search_limit is not None or not is_url(args.url)
 
-        if intent == "playlist":
-            result = process_playlist(
-                url=args.url,
+        if is_search:
+            limit = args.search_limit if args.search_limit is not None else 5
+            result = process_search_query(
+                query=args.url,
+                limit=limit,
+                process_all=args.process_all,
+                selected_index=args.search_pick,
                 output_dir=args.output,
                 extract_frames=args.extract_frames,
                 extract_comments=args.extract_comments,
@@ -136,16 +160,34 @@ def main():
                 quiet=quiet_mode
             )
         else:
-            result = process_single_video(
-                url=args.url,
-                output_dir=args.output,
-                extract_frames=args.extract_frames,
-                extract_comments=args.extract_comments,
-                force_whisper=args.force_whisper,
-                groq_api_key=args.groq_key,
-                preferred_lang=args.lang,
-                quiet=quiet_mode
+            intent = detect_playlist_intent(
+                args.url,
+                force_playlist=args.force_playlist or args.process_all,
+                force_single=args.force_single
             )
+
+            if intent == "playlist":
+                result = process_playlist(
+                    url=args.url,
+                    output_dir=args.output,
+                    extract_frames=args.extract_frames,
+                    extract_comments=args.extract_comments,
+                    force_whisper=args.force_whisper,
+                    groq_api_key=args.groq_key,
+                    preferred_lang=args.lang,
+                    quiet=quiet_mode
+                )
+            else:
+                result = process_single_video(
+                    url=args.url,
+                    output_dir=args.output,
+                    extract_frames=args.extract_frames,
+                    extract_comments=args.extract_comments,
+                    force_whisper=args.force_whisper,
+                    groq_api_key=args.groq_key,
+                    preferred_lang=args.lang,
+                    quiet=quiet_mode
+                )
 
         if args.json_output:
             print(json.dumps(result, ensure_ascii=False, indent=2))
