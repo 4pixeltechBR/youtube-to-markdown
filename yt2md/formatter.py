@@ -74,15 +74,23 @@ def write_visual_report_markdown(
     frames: List[Dict],
     output_dir: str
 ) -> str:
-    """Renders video_report.md containing the 16-frame visual decupage."""
+    """Renders video_report.md containing the perceptual scene & keyframe decupage."""
     os.makedirs(output_dir, exist_ok=True)
     path = os.path.join(output_dir, "video_report.md")
 
     title = meta.get("title", "Untitled")
+    frame_mode = meta.get("frame_mode", "smart")
+    mode_desc = (
+        "Smart Perceptual Keyframes (256-bit dHash + 80% Central ROI + Dwell Stabilization)"
+        if frame_mode == "smart"
+        else "Uniform Equidistant Sampling"
+    )
+
     lines = [
         f"# Visual Timeline Report: {title}\n",
-        "Detailed decupage of 16 equidistant keyframes with spoken dialogue context.\n",
-        "---\n"
+        f"- **Extraction Engine:** `{mode_desc}`",
+        f"- **Total Unique Visual Scenes:** `{len(frames)}`",
+        "\n---\n"
     ]
 
     if not frames:
@@ -91,12 +99,18 @@ def write_visual_report_markdown(
         for f in frames:
             idx = f["index"]
             time_str = f["time_str"]
+            start_str = f.get("start_time_str", time_str)
+            end_str = f.get("end_time_str", time_str)
+            dwell_sec = f.get("dwell_sec", 0.0)
+            vis_type = f.get("visual_type", "Cena Visual")
+            edge_val = f.get("edge_density", 0.0)
             rel_path = f["relative_path"]
             spoken = f["spoken_dialogue"]
 
-            lines.append(f"## Frame {idx:02d} — `{time_str}`\n")
+            lines.append(f"## Frame {idx:02d} — `{time_str}` *(Janela: `{start_str} → {end_str}` | {dwell_sec}s em tela)*\n")
+            lines.append(f"- **Classificação Visual:** {vis_type} *(Edge Score: `{edge_val}`)*\n")
             lines.append(f"![Frame {idx:02d}]({rel_path})\n")
-            lines.append(f"**Dialogue / Context:**\n> \"{spoken}\"\n")
+            lines.append(f"**Dialogue / Context (`{start_str} → {end_str}`):**\n> \"{spoken}\"\n")
             lines.append("---\n")
 
     content = "\n".join(lines)
@@ -168,7 +182,7 @@ python yt2md.py "{url}"
 ### Step 3: Inspect Generated Deliverables
 All core assets are saved directly in your designated output directory:
 - `transcript.md` — Full transcript with timestamps.
-- `video_report.md` — 16-frame visual breakdown.
+- `video_report.md` — Smart Perceptual Keyframe breakdown.
 - `MINDMAP.md` & `mindmap.canvas` — Conceptual hierarchy.
 - `comments.md` — Audience feedback and FAQ.
 

@@ -77,6 +77,10 @@ def process_search_query(
     force_whisper: bool = False,
     groq_api_key: Optional[str] = None,
     preferred_lang: str = "en,pt",
+    max_frames: int = 36,
+    frame_mode: str = "smart",
+    hash_threshold: int = 26,
+    min_dwell: int = 2,
     quiet: bool = False
 ) -> Dict:
     """
@@ -159,6 +163,10 @@ def process_search_query(
             force_whisper=force_whisper,
             groq_api_key=groq_api_key,
             preferred_lang=preferred_lang,
+            max_frames=max_frames,
+            frame_mode=frame_mode,
+            hash_threshold=hash_threshold,
+            min_dwell=min_dwell,
             quiet=quiet
         )
 
@@ -197,6 +205,10 @@ def process_search_query(
                 force_whisper=force_whisper,
                 groq_api_key=groq_api_key,
                 preferred_lang=preferred_lang,
+                max_frames=max_frames,
+                frame_mode=frame_mode,
+                hash_threshold=hash_threshold,
+                min_dwell=min_dwell,
                 quiet=quiet
             )
             batch_results.append(res)

@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "youtube-to-markdown"
-version = "1.1.0"
-description = "Universal multimodal reverse-engineering pipeline: Turn YouTube videos, playlists, and media into structured Markdown, Whisper transcripts, frame timelines, and Obsidian/Mermaid mind maps."
+version = "1.2.0"
+description = "Universal multimodal reverse-engineering pipeline: Turn YouTube videos, playlists, and media into structured Markdown, Whisper transcripts, smart perceptual frame timelines (256-bit dHash), and Obsidian/Mermaid mind maps."
 readme = "README.md"
 authors = [
     { name = "4Pixel Tech", email = "4pixeltech@gmail.com" }
@@ -15,7 +15,9 @@ requires-python = ">=3.10"
 dependencies = [
     "yt-dlp>=2024.08.01",
     "groq>=0.9.0",
-    "imageio-ffmpeg>=0.5.1"
+    "imageio-ffmpeg>=0.5.1",
+    "Pillow>=10.0.0",
+    "ImageHash>=4.3.1"
 ]
 keywords = [
     "youtube",

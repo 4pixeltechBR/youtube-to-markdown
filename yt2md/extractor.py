@@ -110,6 +110,10 @@ def process_single_video(
     force_whisper: bool = False,
     groq_api_key: Optional[str] = None,
     preferred_lang: str = "en,pt",
+    max_frames: int = 36,
+    frame_mode: str = "smart",
+    hash_threshold: int = 26,
+    min_dwell: int = 2,
     quiet: bool = False
 ) -> Dict:
     """
@@ -191,7 +195,8 @@ def process_single_video(
             "outtmpl": temp_audio,
             "quiet": True,
             "no_warnings": True,
-            "overwrites": True
+            "overwrites": True,
+            "extractor_args": {"youtube": {"player_client": ["android", "web"]}}
         }
         with yt_dlp.YoutubeDL(audio_dl_opts) as ydl:
             ydl.download([url])
@@ -219,38 +224,54 @@ def process_single_video(
             print("[+] Neural transcription complete!")
 
     meta["transcript_source"] = transcript_data.get("source", "unknown")
+    meta["frame_mode"] = frame_mode
 
-    # Step 3: Visual Timeline (16 frames)
+    # Step 3: Visual Timeline (Smart Perceptual Keyframes or Uniform)
     frames = []
     if extract_frames and duration > 5:
         if not quiet:
-            print("[*] Downloading video stream (720p) for 16-frame visual timeline...")
+            print("[*] Downloading video stream (720p) for visual timeline analysis...")
         video_file = os.path.join(out_dir, "video.mp4")
         video_dl_opts = {
             "format": "bestvideo[height<=720]+bestaudio/best[height<=720]/best",
             "outtmpl": video_file,
             "quiet": True,
             "no_warnings": True,
-            "overwrites": True
+            "overwrites": True,
+            "extractor_args": {"youtube": {"player_client": ["android", "web"]}}
         }
         try:
             with yt_dlp.YoutubeDL(video_dl_opts) as ydl:
                 ydl.download([url])
 
             if not quiet:
-                print("[*] Extracting 16 equidistant keyframes with dialogue correlation...")
+                if frame_mode == "smart":
+                    print(
+                        f"[*] Scanning 1-FPS stream (256-bit dHash + 80% ROI + Dwell >= {min_dwell}s, max {max_frames} frames)..."
+                    )
+                else:
+                    print(f"[*] Extracting {max_frames} equidistant keyframes with dialogue correlation...")
             frames = extract_visual_timeline(
                 video_file,
                 duration=duration,
                 output_dir=out_dir,
-                num_frames=16,
-                transcript_segments=transcript_data.get("segments")
+                num_frames=max_frames,
+                transcript_segments=transcript_data.get("segments"),
+                mode=frame_mode,
+                hash_threshold=hash_threshold,
+                min_dwell=min_dwell
             )
             if not quiet:
-                print(f"[+] Extracted {len(frames)} visual frames.")
+                print(f"[+] Extracted {len(frames)} unique visual scenes/frames.")
         except Exception as e:
             if not quiet:
                 print(f"[-] Video frame extraction skipped: {e}")
+        finally:
+            if os.path.exists(video_file):
+                try:
+                    os.remove(video_file)
+                except OSError:
+                    pass
 
     # Step 4: Comments Extraction
     comments_file = None
@@ -318,6 +339,10 @@ def process_playlist(
     force_whisper: bool = False,
     groq_api_key: Optional[str] = None,
     preferred_lang: str = "en,pt",
+    max_frames: int = 36,
+    frame_mode: str = "smart",
+    hash_threshold: int = 26,
+    min_dwell: int = 2,
     quiet: bool = False
 ) -> Dict:
     """
@@ -378,6 +403,10 @@ def process_playlist(
                 force_whisper=force_whisper,
                 groq_api_key=groq_api_key,
                 preferred_lang=preferred_lang,
+                max_frames=max_frames,
+                frame_mode=frame_mode,
+                hash_threshold=hash_threshold,
+                min_dwell=min_dwell,
                 quiet=quiet
             )
             results.append(res)

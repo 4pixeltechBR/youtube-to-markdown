@@ -17,7 +17,7 @@ from .utils import ensure_utf8_io
 
 ensure_utf8_io()
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -75,7 +75,35 @@ def build_parser() -> argparse.ArgumentParser:
         dest="extract_frames",
         action="store_false",
         default=True,
-        help="Skip downloading 720p video and extracting 16 visual frames (faster, audio/text only)."
+        help="Skip downloading 720p video and extracting visual keyframes (faster, audio/text only)."
+    )
+    parser.add_argument(
+        "--frames",
+        dest="max_frames",
+        type=int,
+        default=36,
+        help="Maximum unique perceptual keyframes to extract (default: 36; set 0 for unlimited)."
+    )
+    parser.add_argument(
+        "--frame-mode",
+        dest="frame_mode",
+        choices=["smart", "uniform"],
+        default="smart",
+        help="Visual decupage engine: 'smart' (256-bit dHash + 80%% ROI + Dwell stabilization) or 'uniform' (default: 'smart')."
+    )
+    parser.add_argument(
+        "--hash-threshold",
+        dest="hash_threshold",
+        type=int,
+        default=26,
+        help="Hamming distance threshold (out of 256 bits) to trigger a new visual scene in smart mode (default: 26)."
+    )
+    parser.add_argument(
+        "--min-dwell",
+        dest="min_dwell",
+        type=int,
+        default=2,
+        help="Minimum stability dwell time in seconds for a screen to be captured in smart mode (default: 2)."
     )
     parser.add_argument(
         "--no-comments",
@@ -157,6 +185,10 @@ def main():
                 force_whisper=args.force_whisper,
                 groq_api_key=args.groq_key,
                 preferred_lang=args.lang,
+                max_frames=args.max_frames,
+                frame_mode=args.frame_mode,
+                hash_threshold=args.hash_threshold,
+                min_dwell=args.min_dwell,
                 quiet=quiet_mode
             )
         else:
@@ -175,6 +207,10 @@ def main():
                     force_whisper=args.force_whisper,
                     groq_api_key=args.groq_key,
                     preferred_lang=args.lang,
+                    max_frames=args.max_frames,
+                    frame_mode=args.frame_mode,
+                    hash_threshold=args.hash_threshold,
+                    min_dwell=args.min_dwell,
                     quiet=quiet_mode
                 )
             else:
@@ -186,6 +222,10 @@ def main():
                     force_whisper=args.force_whisper,
                     groq_api_key=args.groq_key,
                     preferred_lang=args.lang,
+                    max_frames=args.max_frames,
+                    frame_mode=args.frame_mode,
+                    hash_threshold=args.hash_threshold,
+                    min_dwell=args.min_dwell,
                     quiet=quiet_mode
                 )
 
