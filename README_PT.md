@@ -8,7 +8,7 @@
 [![English](https://img.shields.io/badge/Documentation-English-blue)](README.md)
 
 **Motor universal de engenharia reversa multimodal para desenvolvedores e agentes de IA.**  
-Transforme vídeos do YouTube, playlists inteiras, TikTok, Instagram Reels, vídeos do X (Twitter) e podcasts em Markdown estruturado, transcrições com legendas nativas (CC) sem gastar API ou Whisper neural, decupagem visual de 16 quadros (frames), comentários da comunidade e mapas mentais interativos em formato Obsidian Canvas e Mermaid.
+Transforme vídeos do YouTube, playlists inteiras, TikTok, Instagram Reels, vídeos do X (Twitter) e podcasts em Markdown estruturado, transcrições com legendas nativas (CC) sem gastar API ou Whisper neural, **Smart Perceptual Keyframes (`dHash` 256-bit + Crop Central 80% + Estabilização por Dwell Time)**, comentários da comunidade e mapas mentais interativos em formato Obsidian Canvas e Mermaid.
 
 > **Nativo para Harness de IA:** Sem interface web pesada (zero Streamlit/Gradio). Projetado para rodar direto de dentro do **Claude Code, Antigravity, OpenAI Codex, OpenCode, MiniMax Code, Cursor e Aider** — ou via linha de comando no terminal.
 
@@ -24,7 +24,7 @@ A maioria das ferramentas do mercado apenas cospe textos brutos ou exige interfa
 | **Fallback Neural Whisper** | ⚠️ Whisper local lento ou caro | ✅ **Groq Whisper v3 Turbo (< 3s)** |
 | **Detecção Inteligente de Playlist** | ❌ Baixa tudo ou quebra | ✅ **Pergunta se quer 1 vídeo ou a playlist** |
 | **Compressão Extrema de Áudio** | ❌ Sobe arquivos brutos gigantes | ✅ **FFmpeg 16kHz mono 32k (-90% de tamanho)** |
-| **Linha do Tempo Visual (16 Frames)** | ❌ Apenas áudio/texto | ✅ **16 quadros sincronizados com o diálogo** |
+| **Smart Perceptual Keyframes** | ❌ Corte uniforme cego ou nenhum | ✅ **Scan 1-FPS em RAM + `dHash` 256-bit + ROI 80% + Estabilização** |
 | **Suporte Nativo a Obsidian Canvas** | ❌ Apenas texto simples | ✅ **Gera `.canvas` JSON nativo + Mermaid `.mmd`** |
 | **Extração de Comentários Públicos** | ❌ Exige API Key do Google | ✅ **Integrado direto (Sem API key)** |
 | **Compatibilidade com Harness de IA** | ❌ Focado em humanos/web | ✅ **Arquivo `SKILL.md` + saída JSON limpa** |
@@ -40,14 +40,14 @@ Cada conteúdo processado gera uma pasta estruturada pronta para consumo:
 output/Como Criar um Agente de IA - Fireship/
 ├── INDEX.md                  # Central de navegação com links clicáveis locais (file:///)
 ├── transcript.md             # Transcrição completa (blocos de 1 min com timestamp + texto contínuo)
-├── video_report.md           # Decupagem visual dos 16 frames com a fala exata do autor
+├── video_report.md           # Decupagem visual perceptual com tempo de tela e fala exata do autor
 ├── STRATEGIES.md             # SOP Operacional, playbook de execução e prompts copiáveis
 ├── MINDMAP.md                # Mapa mental formatado em Markdown com Mermaid interativo
 ├── mindmap.canvas            # Canvas nativo do Obsidian (cards coloridos e conectados)
 ├── mindmap.mmd               # Código Mermaid puro
 ├── comments.md               # Comentários fixados do autor, discussões e dúvidas da audiência
 ├── video_info.json           # Metadados completos estruturados
-└── frames/                   # 16 imagens JPG em alta resolução
+└── frames/                   # Imagens JPG 720p das telas únicas estabilizadas
     ├── frame_01_0014s.jpg
     └── ...
 ```
@@ -142,28 +142,28 @@ python yt2md.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
   Diretório [padrão: ./output/Rick Astley - Never Gonna Give You Up]:
 ```
 
-### 2. Processamento em Lote de Playlists
+### 3. Processamento em Lote de Playlists
 Para processar uma playlist completa com criação de sumário mestre (`PLAYLIST_SUMMARY.md`):
 
 ```bash
 python yt2md.py "https://www.youtube.com/playlist?list=PLxxx" --playlist
 ```
 
-### 3. Definir Diretório de Saída
+### 4. Definir Diretório de Saída
 Salve diretamente na pasta do seu projeto ou no cofre do Obsidian:
 
 ```bash
 python yt2md.py "<URL>" -o "E:/Obsidian/Cofre/Pesquisas/"
 ```
 
-### 4. Modo Rápido Áudio/Texto (Sem baixar vídeo ou frames)
+### 5. Modo Rápido Áudio/Texto (Sem baixar vídeo ou frames)
 Ideal para podcasts ou palestras longas:
 
 ```bash
 python yt2md.py "<URL>" --no-frames
 ```
 
-### 5. Multiplataforma
+### 6. Multiplataforma
 Funciona com mídias suportadas pelo ecossistema yt-dlp:
 ```bash
 # TikTok
@@ -227,6 +227,8 @@ Ao abrir a pasta gerada no [Obsidian](https://obsidian.md), o arquivo `mindmap.c
 
 ```
 uso: yt2md [-h] [-o OUTPUT] [--playlist] [--single-video] [--no-frames]
+           [--frames MAX_FRAMES] [--frame-mode {smart,uniform}]
+           [--hash-threshold HASH_THRESHOLD] [--min-dwell MIN_DWELL]
            [--no-comments] [--force-whisper] [--groq-key GROQ_KEY]
            [--lang LANG] [--json] [-q] [-v] [url]
 
@@ -238,7 +240,11 @@ opções:
   -o, --output OUTPUT   Diretório de destino customizado
   --playlist            Força o processamento em lote da playlist inteira
   --single-video        Força o processamento apenas do vídeo individual
-  --no-frames           Pula o download do vídeo 720p e a extração dos 16 frames
+  --frame-mode MODE     'smart' (dHash 256-bit + ROI 80% + Dwell) ou 'uniform'
+  --frames N            Máximo de cenas únicas a extrair (padrão: 36, 0=ilimitado)
+  --min-dwell SEC       Tempo mínimo de tela estabilizada em segundos (padrão: 2)
+  --hash-threshold BITS Limiar de distância de Hamming de 256 bits (padrão: 26)
+  --no-frames           Pula o download do vídeo 720p e a extração de frames
   --no-comments         Pula a extração de comentários públicos
   --force-whisper       Ignora legendas nativas (CC) e força Groq Whisper
   --groq-key KEY        Chave customizada da API da Groq
